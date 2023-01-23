@@ -23,6 +23,7 @@ is 0 or 1 indicating whether it is a read request (1 for read and 0 for write) a
 void *HandleClientRequest(void *void_args)
 {
     struct arg_struct* args = (struct arg_struct*) void_args;
+    printf("FD: %ld \n", args->clientFileDescriptor);
     ClientRequest* client_request = malloc(sizeof(ClientRequest));
     char * return_str = (char*) malloc(COM_BUFF_SIZE*sizeof(char));
     int ret = 0;
@@ -31,9 +32,10 @@ void *HandleClientRequest(void *void_args)
       ret = read(args->clientFileDescriptor,msg,COM_BUFF_SIZE);
       if (ret == 0) {
         free(return_str);
+        printf("CLOSING %ld \n", args->clientFileDescriptor);
+        close(args->clientFileDescriptor);
         free(args);
         free(client_request);
-        close(args->clientFileDescriptor);
         return NULL;
       }
       printf("Parsing message msg: %s \n", msg );
@@ -54,9 +56,10 @@ void *HandleClientRequest(void *void_args)
       pthread_mutex_unlock(&lock);
     }
     free(return_str);
+    printf("CLOSING %ld \n", args->clientFileDescriptor);
+    close(args->clientFileDescriptor);
     free(args);
     free(client_request);
-    close(args->clientFileDescriptor);
     return NULL;
 }
 
@@ -64,7 +67,7 @@ int main(int argc, char* argv[])
 {
     struct sockaddr_in sock_var;
     int serverFileDescriptor=socket(AF_INET,SOCK_STREAM,0);
-    int clientFileDescriptor;
+    long clientFileDescriptor;
     int i;
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
@@ -95,12 +98,12 @@ int main(int argc, char* argv[])
         while(1) {
             for(i=0;i<COM_NUM_REQUEST;i++)      //can support COM_NUM_REQUEST clients at a time
             {
-                printf("Connecting to client %d\n",clientFileDescriptor);
+                printf("Connecting to client %ld\n",clientFileDescriptor);
                 struct arg_struct* args = malloc(sizeof(struct arg_struct));
                 clientFileDescriptor=accept(serverFileDescriptor,NULL,NULL);
                 args->clientFileDescriptor = clientFileDescriptor; args->strings = strings; 
                 pthread_create(&t[i],NULL,HandleClientRequest,(void *) args);
-                printf("Connected to client %d\n",clientFileDescriptor);
+                printf("Connected to client %ld\n",clientFileDescriptor);
             }
 
             for(int k=0;k<COM_NUM_REQUEST;k++){
