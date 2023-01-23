@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
             for(int k=0;k<COM_NUM_REQUEST;k++){
                 pthread_join(t[k],NULL);
             }
-            printf("DONE ITERATION")
+            printf("DONE ITERATION");
         }
 
         close(serverFileDescriptor);
