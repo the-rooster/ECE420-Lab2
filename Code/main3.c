@@ -9,7 +9,7 @@
 #include "common.h"
 #include "timer.h"
 
-pthread_mutex_t lock;
+pthread_rwlock_t read_write_lock;
 
 struct arg_struct {
     char **strings;
@@ -52,19 +52,20 @@ void *HandleClientRequest(void *void_args)
       ParseMsg(msg, client_request);
       printf("Parsed message msg: %s cli_request_pos: %d , cli_request_msg: %s\n", msg, client_request->pos, client_request->msg );
       GET_TIME(start);
-      pthread_mutex_lock(&lock);
       if (client_request->is_read == 1) {
+        pthread_rwlock_rdlock(&read_write_lock);
         printf("Reading at pos %d\n",client_request->pos);
         getContent(return_str,client_request->pos,args->strings);
         write(args->clientFileDescriptor,return_str,COM_BUFF_SIZE);
       } else {
+        pthread_rwlock_wrlock(&read_write_lock);
         printf("Writing at pos %d\n",client_request->pos);
         char *tmp = client_request->msg;
         setContent(tmp, client_request->pos, args->strings);
         write(args->clientFileDescriptor,client_request->msg,COM_BUFF_SIZE);
       }
       printf("Writing at pos %d\n",client_request->pos);
-      pthread_mutex_unlock(&lock);
+      pthread_rwlock_unlock(&read_write_lock);
       GET_TIME(end);
 
       total_time = total_time + (end - start);
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
     int serverFileDescriptor=socket(AF_INET,SOCK_STREAM,0);
     long clientFileDescriptor;
     int i;
-    if (pthread_mutex_init(&lock, NULL) != 0)
+    if (pthread_rwlock_init(&read_write_lock, NULL) != 0)
     {
         printf("\n mutex init failed\n");
         return 1;

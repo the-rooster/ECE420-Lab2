@@ -177,7 +177,6 @@ int main(int argc, char* argv[])
                 avgs[i] = *avg;
 
                 free(avg);
-                
             }
 
             saveTimes(avgs,COM_NUM_REQUEST);
