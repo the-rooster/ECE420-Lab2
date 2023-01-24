@@ -36,7 +36,7 @@ void *HandleClientRequest(void *void_args)
         close(args->clientFileDescriptor);
         free(args);
         free(client_request);
-        pthread_exit(NULL);
+        return NULL;
       }
       printf("Parsing message msg: %s \n", msg );
       ParseMsg(msg, client_request);
@@ -100,7 +100,9 @@ int main(int argc, char* argv[])
                 printf("Connected to client %ld\n",clientFileDescriptor);
             }
 
-
+            for(int k=0;k<COM_NUM_REQUEST;k++){
+                pthread_join(t[k],NULL);
+            }
             printf("DONE ITERATION");
         }
 
