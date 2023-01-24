@@ -36,7 +36,7 @@ void *HandleClientRequest(void *void_args)
         close(args->clientFileDescriptor);
         free(args);
         free(client_request);
-        return NULL;
+        pthread_exit(NULL);
       }
       printf("Parsing message msg: %s \n", msg );
       ParseMsg(msg, client_request);
@@ -55,12 +55,6 @@ void *HandleClientRequest(void *void_args)
       printf("Writing at pos %d\n",client_request->pos);
       pthread_mutex_unlock(&lock);
     }
-    free(return_str);
-    printf("CLOSING %ld \n", args->clientFileDescriptor);
-    close(args->clientFileDescriptor);
-    free(args);
-    free(client_request);
-    return NULL;
 }
 
 int main(int argc, char* argv[])
@@ -106,9 +100,7 @@ int main(int argc, char* argv[])
                 printf("Connected to client %ld\n",clientFileDescriptor);
             }
 
-            for(int k=0;k<COM_NUM_REQUEST;k++){
-                pthread_join(t[k],NULL);
-            }
+
             printf("DONE ITERATION");
         }
 
