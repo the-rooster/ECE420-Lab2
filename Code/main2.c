@@ -35,7 +35,7 @@ void *ServerThread(void *args)
             printf("CONNECTION CLOSED\n");
             //EOF reached
             close(clientFileDescriptor);
-            return NULL;
+            pthread_exit(NULL);
         }       
 
         ParseMsg(str,req);
@@ -129,6 +129,11 @@ int main(int argc, char* argv[])
                 clientFileDescriptor=accept(serverFileDescriptor,NULL,NULL);
                 printf("Connected to client %d\n",clientFileDescriptor);
                 pthread_create(&t[i],NULL,ServerThread,(void *)(long)clientFileDescriptor);
+                printf("THREAD %d STARTED\n",clientFileDescriptor);
+            }
+
+            for(i=0;i<COM_NUM_REQUEST;i++){
+                pthread_join(t[i],NULL);
             }
             
         }
