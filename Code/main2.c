@@ -132,9 +132,6 @@ int main(int argc, char* argv[])
                 printf("THREAD %d STARTED\n",clientFileDescriptor);
             }
 
-            for(i=0;i<COM_NUM_REQUEST;i++){
-                pthread_join(t[i],NULL);
-            }
             
         }
         close(serverFileDescriptor);
