@@ -7,9 +7,9 @@
 #include<unistd.h>
 #include<pthread.h>
 #include "common.h"
+#include "timer.h"
 
 pthread_mutex_t lock;
-
 
 struct arg_struct {
     char **strings;
@@ -22,6 +22,10 @@ is 0 or 1 indicating whether it is a read request (1 for read and 0 for write) a
 “SSSSSS” is the string to be written*/
 void *HandleClientRequest(void *void_args)
 {
+    double start, end;
+
+    double total_time = 0.0;
+    double transaction_count = 0.0;
     struct arg_struct* args = (struct arg_struct*) void_args;
     printf("FD: %ld \n", args->clientFileDescriptor);
     ClientRequest* client_request = malloc(sizeof(ClientRequest));
@@ -36,7 +40,13 @@ void *HandleClientRequest(void *void_args)
         close(args->clientFileDescriptor);
         free(args);
         free(client_request);
-        return NULL;
+        if (transaction_count != 0){
+            double* average = malloc(sizeof(double));
+            printf("Time sent %f\n", total_time / transaction_count);
+            *average = total_time / transaction_count;
+            pthread_exit(average);
+        }
+        pthread_exit(NULL);
       }
       printf("Parsing message msg: %s \n", msg );
       ParseMsg(msg, client_request);
@@ -54,6 +64,10 @@ void *HandleClientRequest(void *void_args)
       }
       printf("Writing at pos %d\n",client_request->pos);
       pthread_mutex_unlock(&lock);
+      GET_TIME(end);
+
+      total_time = total_time + (end - start);
+      transaction_count = transaction_count + 1;
     }
 }
 
@@ -68,6 +82,7 @@ int main(int argc, char* argv[])
         printf("\n mutex init failed\n");
         return 1;
     }
+
     printf("Reading Args\n");
     int n = atoi(*(argv + 1));
     in_addr_t ip = inet_addr(argv[2]);
@@ -84,12 +99,12 @@ int main(int argc, char* argv[])
     sock_var.sin_addr.s_addr=ip;
     sock_var.sin_port=port;
     sock_var.sin_family=AF_INET;
-  
     if(bind(serverFileDescriptor,(struct sockaddr*)&sock_var,sizeof(sock_var))>=0)
     {
         printf("socket has been created\n");
         listen(serverFileDescriptor,2000); 
         while(1) {
+            double avgs[COM_NUM_REQUEST] = {0.0};
             for(i=0;i<COM_NUM_REQUEST;i++)      //can support COM_NUM_REQUEST clients at a time
             {
                 printf("Connecting to client %ld\n",clientFileDescriptor);
@@ -101,7 +116,16 @@ int main(int argc, char* argv[])
             }
 
             for(int k=0;k<COM_NUM_REQUEST;k++){
-                pthread_join(t[k],NULL);
+                double* avg;
+
+                pthread_join(t[k],&avg);
+                printf("Time received %f\n", *avg);
+                avgs[k] = *avg;
+                printf("Time in array %f\n", avgs[k]);
+                if (k == (COM_NUM_REQUEST - 1)){
+                    saveTimes(avgs,COM_NUM_REQUEST);
+                }
+              
             }
             printf("DONE ITERATION");
         }
