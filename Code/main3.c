@@ -96,9 +96,11 @@ int main(int argc, char* argv[])
     //printf("Init Strings\n");
     char **strings = (char**) malloc(n * sizeof(char*));
 
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
       strings[i] = (char*) malloc(COM_BUFF_SIZE*sizeof(char));
+      sprintf(strings[i],"String %d: the initial value",i);
     }
+    
     sock_var.sin_addr.s_addr=ip;
     sock_var.sin_port=port;
     sock_var.sin_family=AF_INET;

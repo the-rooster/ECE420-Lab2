@@ -1,5 +1,5 @@
 
-GCC= gcc -o3 -pthread
+GCC= gcc -O3 -pthread
 
 main1:
 	${GCC} main1.c -o main1
