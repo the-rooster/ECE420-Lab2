@@ -26,6 +26,7 @@ IP=${2}
 
 clear
 
+echo ${arraysize} ${IP} ${port}
 echo "Start..."
 ATTEMPT=0
 while [[ $ATTEMPT -ne $Duplicates ]]; do

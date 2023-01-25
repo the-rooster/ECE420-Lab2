@@ -108,8 +108,8 @@ void* InitStringArray(int size){
     strings = malloc(sizeof(char*) * size);
 
     mutexes = malloc(sizeof(pthread_mutex_t) * size);
-
-    for(int i = 0;i<size;i++){
+    int i;
+    for(i = 0;i<size;i++){
         //initialize each string
         strings[i] = malloc(sizeof(char) * COM_BUFF_SIZE);
         
@@ -119,7 +119,7 @@ void* InitStringArray(int size){
 
     //set initial values of strings
 
-    for(int i = 0;i<size;i++){
+    for(i = 0;i<size;i++){
         char str[COM_BUFF_SIZE];
         sprintf(str,"String %d: the initial value",i);
         setContent(str,i,strings);
@@ -153,6 +153,9 @@ int main(int argc, char* argv[])
     sock_var.sin_addr.s_addr=inet_addr(argv[2]);
     sock_var.sin_port=port;
     sock_var.sin_family=AF_INET;
+
+    
+
     if(bind(serverFileDescriptor,(struct sockaddr*)&sock_var,sizeof(sock_var))>=0)
     {
       //printf("socket has been created\n");
