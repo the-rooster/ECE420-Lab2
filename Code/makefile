@@ -1,6 +1,8 @@
 
 GCC= gcc -O3 -pthread
 
+target: main1 main2 main3 main4
+
 main1:
 	${GCC} main1.c -o main1
 
