@@ -25,4 +25,19 @@ Content
 7. test.sh
    ** A shell script showing you how to run your client 100 times.
 =====
+
+MAIN FILES:
+====
+1. main1
+   ** Mutex on entire string array
+----
+2. main2
+   ** Mutex per string in string array
+----
+3. main3
+   ** Read and write lock on the entire string array
+----
+4. main4
+   ** Read and write lock per node
+====
 Please also find the detailed instructions in the comments of the individual files.
