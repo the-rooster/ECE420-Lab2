@@ -15,5 +15,6 @@ do
 	 kill $PROC_ID
 	 mv server_output_time_aggregated results/main${main}_times_n_${i}.txt
 	 echo Done main${main}
+	 sleep 2
  done
 done
